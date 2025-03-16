@@ -5,13 +5,62 @@ import { BSVSignature } from "./Signature.js";
 import Hash from "./Hashes.js";
 import Shamir from "./Shamir.js";
 import * as Encryption from "./Encryption.js";
+import swaggerUi from 'swagger-ui-express';
+import specs from './swagger.js';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-// Key Management Endpoints
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     KeyResponse:
+ *       type: object
+ *       properties:
+ *         mnemonic:
+ *           type: string
+ *           description: 24-word mnemonic phrase
+ *         keys:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               type:
+ *                 type: string
+ *                 enum: [identity, financial, contractual, property, document, privacy]
+ *               path:
+ *                 type: string
+ *                 description: BIP44 derivation path
+ *               wif:
+ *                 type: string
+ *                 description: Wallet Import Format key
+ *               publicKey:
+ *                 type: string
+ *                 description: Public key in hex format
+ *               address:
+ *                 type: string
+ *                 description: BSV address
+ */
+
+/**
+ * @swagger
+ * /keys/generate:
+ *   post:
+ *     summary: Generate new BSV keys with mnemonic
+ *     description: Generates a new 24-word mnemonic and derives multiple key types using BIP44 paths
+ *     tags: [Keys]
+ *     responses:
+ *       200:
+ *         description: Successfully generated keys
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/KeyResponse'
+ */
 app.post("/keys/generate", (req, res) => {
   try {
     const keys = BSVKeys.generateAllKeys();
@@ -21,6 +70,32 @@ app.post("/keys/generate", (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /keys/from-mnemonic:
+ *   post:
+ *     summary: Generate keys from existing mnemonic
+ *     description: Derives multiple key types from a provided mnemonic using BIP44 paths
+ *     tags: [Keys]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [mnemonic]
+ *             properties:
+ *               mnemonic:
+ *                 type: string
+ *                 description: 24-word mnemonic phrase
+ *     responses:
+ *       200:
+ *         description: Successfully generated keys
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/KeyResponse'
+ */
 app.post("/keys/from-mnemonic", (req, res) => {
   try {
     const { mnemonic } = req.body;
@@ -52,7 +127,39 @@ app.post("/keys/from-mnemonic", (req, res) => {
   }
 });
 
-// Signature Endpoints
+/**
+ * @swagger
+ * /sign/ecdsa:
+ *   post:
+ *     summary: Create ECDSA signature
+ *     description: Signs data using ECDSA and returns a DER-encoded signature
+ *     tags: [Signatures]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [data, wif]
+ *             properties:
+ *               data:
+ *                 type: string
+ *                 description: Data to sign
+ *               wif:
+ *                 type: string
+ *                 description: WIF private key
+ *     responses:
+ *       200:
+ *         description: Successfully created signature
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 signature:
+ *                   type: string
+ *                   description: DER-encoded signature
+ */
 app.post("/sign/ecdsa", (req, res) => {
   try {
     const { data, wif, purpose } = req.body;
@@ -72,6 +179,39 @@ app.post("/sign/ecdsa", (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /sign/eddsa:
+ *   post:
+ *     summary: Create EdDSA signature
+ *     description: Signs data using EdDSA (Ed25519) and returns a 128-character hex signature
+ *     tags: [Signatures]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [data, wif]
+ *             properties:
+ *               data:
+ *                 type: string
+ *                 description: Data to sign
+ *               wif:
+ *                 type: string
+ *                 description: WIF private key
+ *     responses:
+ *       200:
+ *         description: Successfully created signature
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 signature:
+ *                   type: string
+ *                   description: 128-character hex signature
+ */
 app.post("/sign/eddsa", (req, res) => {
   try {
     const { data, wif } = req.body;
@@ -91,6 +231,42 @@ app.post("/sign/eddsa", (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /verify/ecdsa:
+ *   post:
+ *     summary: Verify ECDSA signature
+ *     description: Verifies a signature using ECDSA
+ *     tags: [Signatures]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [data, signature, publicKey]
+ *             properties:
+ *               data:
+ *                 type: string
+ *                 description: Data to verify
+ *               signature:
+ *                 type: string
+ *                 description: DER-encoded signature
+ *               publicKey:
+ *                 type: string
+ *                 description: Public key in hex format
+ *     responses:
+ *       200:
+ *         description: Successfully verified signature
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isValid:
+ *                   type: boolean
+ *                   description: Whether the signature is valid
+ */
 app.post("/verify/ecdsa", (req, res) => {
   try {
     const { data, signature, publicKey } = req.body;
@@ -106,6 +282,42 @@ app.post("/verify/ecdsa", (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /verify/eddsa:
+ *   post:
+ *     summary: Verify EdDSA signature
+ *     description: Verifies a signature using EdDSA (Ed25519)
+ *     tags: [Signatures]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [data, signature, wif]
+ *             properties:
+ *               data:
+ *                 type: string
+ *                 description: Data to verify
+ *               signature:
+ *                 type: string
+ *                 description: 128-character hex signature
+ *               wif:
+ *                 type: string
+ *                 description: WIF private key
+ *     responses:
+ *       200:
+ *         description: Successfully verified signature
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isValid:
+ *                   type: boolean
+ *                   description: Whether the signature is valid
+ */
 app.post("/verify/eddsa", (req, res) => {
   try {
     const { data, signature, wif } = req.body;
@@ -121,7 +333,40 @@ app.post("/verify/eddsa", (req, res) => {
   }
 });
 
-// Hash Endpoints
+/**
+ * @swagger
+ * /hash:
+ *   post:
+ *     summary: Create hash
+ *     description: Creates a hash of the input data using the specified algorithm
+ *     tags: [Hashing]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [data, algorithm]
+ *             properties:
+ *               data:
+ *                 type: string
+ *                 description: Data to hash
+ *               algorithm:
+ *                 type: string
+ *                 enum: [256, 512, double256, 160]
+ *                 description: Hash algorithm to use
+ *     responses:
+ *       200:
+ *         description: Successfully created hash
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 hash:
+ *                   type: string
+ *                   description: Resulting hash in hex format
+ */
 app.post("/hash", (req, res) => {
   try {
     const { data, algorithm } = req.body;
@@ -151,6 +396,43 @@ app.post("/hash", (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /hash/verify:
+ *   post:
+ *     summary: Verify hash
+ *     description: Verifies a hash using the specified algorithm
+ *     tags: [Hashing]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [data, hash, algorithm]
+ *             properties:
+ *               data:
+ *                 type: string
+ *                 description: Data to verify
+ *               hash:
+ *                 type: string
+ *                 description: Hash to verify
+ *               algorithm:
+ *                 type: string
+ *                 enum: [256, 512, double256, 160]
+ *                 description: Hash algorithm to use
+ *     responses:
+ *       200:
+ *         description: Successfully verified hash
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isValid:
+ *                   type: boolean
+ *                   description: Whether the hash is valid
+ */
 app.post("/hash/verify", (req, res) => {
   try {
     const { data, hash, algorithm } = req.body;
@@ -163,7 +445,39 @@ app.post("/hash/verify", (req, res) => {
   }
 });
 
-// Encryption Endpoints
+/**
+ * @swagger
+ * /encrypt:
+ *   post:
+ *     summary: Encrypt data
+ *     description: Encrypts data using AES with password-based key derivation
+ *     tags: [Encryption]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [data, key]
+ *             properties:
+ *               data:
+ *                 type: string
+ *                 description: Data to encrypt
+ *               key:
+ *                 type: string
+ *                 description: Encryption key/password
+ *     responses:
+ *       200:
+ *         description: Successfully encrypted data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 encrypted:
+ *                   type: string
+ *                   description: Encrypted data in base64 format
+ */
 app.post("/encrypt", (req, res) => {
   try {
     const { data, key, isObject } = req.body;
@@ -179,6 +493,39 @@ app.post("/encrypt", (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /decrypt:
+ *   post:
+ *     summary: Decrypt data
+ *     description: Decrypts AES-encrypted data using the provided key
+ *     tags: [Encryption]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [data, key]
+ *             properties:
+ *               data:
+ *                 type: string
+ *                 description: Encrypted data in base64 format
+ *               key:
+ *                 type: string
+ *                 description: Decryption key/password
+ *     responses:
+ *       200:
+ *         description: Successfully decrypted data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 decrypted:
+ *                   type: string
+ *                   description: Decrypted data
+ */
 app.post("/decrypt", (req, res) => {
   try {
     const { data, key, isObject } = req.body;
@@ -194,7 +541,46 @@ app.post("/decrypt", (req, res) => {
   }
 });
 
-// Shamir Secret Sharing Endpoints
+/**
+ * @swagger
+ * /shamir/split:
+ *   post:
+ *     summary: Split a secret using Shamir's Secret Sharing
+ *     description: Splits a secret into multiple shares with a configurable threshold
+ *     tags: [Shamir]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [secret, shares, threshold]
+ *             properties:
+ *               secret:
+ *                 type: string
+ *                 description: Secret to split
+ *               shares:
+ *                 type: integer
+ *                 minimum: 2
+ *                 description: Number of shares to create
+ *               threshold:
+ *                 type: integer
+ *                 minimum: 2
+ *                 description: Number of shares required to reconstruct
+ *     responses:
+ *       200:
+ *         description: Successfully split secret
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 shares:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: Array of hex-encoded shares
+ */
 app.post("/shamir/split", (req, res) => {
   try {
     const { secret, shares, threshold } = req.body;
@@ -221,6 +607,39 @@ app.post("/shamir/split", (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /shamir/combine:
+ *   post:
+ *     summary: Combine Shamir secret shares
+ *     description: Combines the provided shares to reconstruct the original secret
+ *     tags: [Shamir]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [shares]
+ *             properties:
+ *               shares:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 minItems: 2
+ *                 description: Array of hex-encoded shares
+ *     responses:
+ *       200:
+ *         description: Successfully reconstructed secret
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 secret:
+ *                   type: string
+ *                   description: Reconstructed secret
+ */
 app.post("/shamir/combine", (req, res) => {
   try {
     const { shares } = req.body;
