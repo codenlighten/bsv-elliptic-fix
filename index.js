@@ -7,6 +7,7 @@ import Shamir from "./Shamir.js";
 import * as Encryption from "./Encryption.js";
 import swaggerUi from "swagger-ui-express";
 import specs from "./swagger.js";
+import uuid from "uuid";
 
 const app = express();
 app.use(cors());
@@ -681,6 +682,30 @@ app.post("/api/shamir/combine", (req, res) => {
   }
 });
 
+// UUID endpoint
+/**
+ * @swagger
+ * /api/uuid:
+ *   get:
+ *     summary: Generate a UUID
+ *     description: Generates a random UUID
+ *     tags: [Utility]
+ *     responses:
+ *       200:
+ *         description: Successfully generated UUID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 uuid:
+ *                   type: string
+ *                   description: Generated UUID
+ */
+app.get("/api/uuid", (req, res) => {
+  res.json({ uuid: uuid.v4() });
+});
+
 // Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({ status: "healthy", timestamp: new Date().toISOString() });
@@ -703,6 +728,7 @@ Available endpoints:
 - POST /api/decrypt                   Decrypt data
 - POST /api/shamir/split              Split secret using Shamir's Secret Sharing
 - POST /api/shamir/combine            Combine shares to reconstruct secret
+- GET  /api/uuid                      Generate a UUID
 - GET  /api/health                    Health check
     `);
 });
