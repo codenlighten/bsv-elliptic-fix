@@ -125,6 +125,77 @@ class Shamir {
       console.error("Test 3 failed:", error);
     }
   }
+
+  /**
+   * Test the Shamir's Secret Sharing implementation with BSV key scenarios
+   */
+  static testWithBSVKeys() {
+    const shamir = new Shamir();
+    console.log("\nTesting Shamir Secret Sharing with BSV Keys");
+
+    // Test 1: Split and combine a WIF key
+    console.log("\nTest 1: WIF Key");
+    try {
+      const wifKey = "L1aW4aubDFB7yfras2S1mN3bqg9nwySY8nkoLmJebSLD5BWv3ENZ";
+      const shares = shamir.split(wifKey, { shares: 5, threshold: 3 });
+      console.log("Created 5 shares for WIF key");
+
+      // Try different combinations of shares
+      const recovered1 = shamir.combine(shares.slice(0, 3));
+      const recovered2 = shamir.combine(shares.slice(2, 5));
+
+      if (recovered1.toString() === wifKey && recovered2.toString() === wifKey) {
+        console.log("✓ Successfully recovered WIF key from different share combinations");
+      } else {
+        throw new Error("WIF key recovery mismatch");
+      }
+    } catch (error) {
+      console.error("Test 1 failed:", error);
+    }
+
+    // Test 2: Split and combine a mnemonic phrase
+    console.log("\nTest 2: Mnemonic Phrase");
+    try {
+      const mnemonic = "abandon ability able about above absent absorb abstract absurd abuse access accident account accuse achieve acid acoustic acquire across act action actor actress actual";
+      const shares = shamir.split(mnemonic, { shares: 4, threshold: 2 });
+      console.log("Created 4 shares for mnemonic");
+
+      // Try combining with minimum shares
+      const recovered = shamir.combine(shares.slice(1, 3));
+      if (recovered.toString() === mnemonic) {
+        console.log("✓ Successfully recovered mnemonic from minimum shares");
+      } else {
+        throw new Error("Mnemonic recovery mismatch");
+      }
+    } catch (error) {
+      console.error("Test 2 failed:", error);
+    }
+
+    // Test 3: Error cases with BSV data
+    console.log("\nTest 3: Error Cases");
+    try {
+      // Test with invalid threshold for sensitive data
+      try {
+        shamir.split("sensitive_wif_key", { shares: 3, threshold: 1 });
+        console.error("Should have thrown error for unsafe threshold");
+      } catch (e) {
+        console.log("✓ Correctly caught unsafe threshold:", e.message);
+      }
+
+      // Test with insufficient shares for key recovery
+      try {
+        const shares = shamir.split("test_key", { shares: 5, threshold: 3 });
+        shamir.combine(shares.slice(0, 2));
+        console.error("Should have thrown error for insufficient shares");
+      } catch (e) {
+        console.log("✓ Correctly caught insufficient shares");
+      }
+
+      console.log("✓ All error cases handled correctly");
+    } catch (error) {
+      console.error("Test 3 failed:", error);
+    }
+  }
 }
 
 export default Shamir;
