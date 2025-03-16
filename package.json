@@ -1,5 +1,5 @@
 {
-  "name": "bsv-hardened-tesyt",
+  "name": "bsv-hardened-test",
   "version": "1.0.0",
   "description": "A comprehensive Bitcoin SV (BSV) key management system",
   "type": "module",
