@@ -202,27 +202,57 @@
       <!-- Shamir Secret Sharing Section -->
       <div class="mb-8 p-6 bg-white rounded-lg shadow-lg">
         <h2 class="text-2xl font-bold mb-4">Shamir Secret Sharing</h2>
-        
+
         <!-- Split Secret -->
         <div class="mb-6">
           <h3 class="text-xl font-semibold mb-3">Split Secret</h3>
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700">Secret</label>
-              <input type="text" id="shamirSecret" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+              <label class="block text-sm font-medium text-gray-700"
+                >Secret</label
+              >
+              <input
+                type="text"
+                id="shamirSecret"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700">Total Shares</label>
-                <input type="number" id="totalShares" min="2" value="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <label class="block text-sm font-medium text-gray-700"
+                  >Total Shares</label
+                >
+                <input
+                  type="number"
+                  id="totalShares"
+                  min="2"
+                  value="5"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700">Required Shares</label>
-                <input type="number" id="requiredShares" min="2" value="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <label class="block text-sm font-medium text-gray-700"
+                  >Required Shares</label
+                >
+                <input
+                  type="number"
+                  id="requiredShares"
+                  min="2"
+                  value="3"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
               </div>
             </div>
-            <button onclick="splitSecret()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Split Secret</button>
-            <div id="sharesOutput" class="mt-4 p-4 bg-gray-100 rounded-md hidden">
+            <button
+              onclick="splitSecret()"
+              class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            >
+              Split Secret
+            </button>
+            <div
+              id="sharesOutput"
+              class="mt-4 p-4 bg-gray-100 rounded-md hidden"
+            >
               <h4 class="font-medium mb-2">Generated Shares:</h4>
               <div id="sharesList" class="space-y-2"></div>
             </div>
@@ -235,12 +265,29 @@
           <div class="space-y-4">
             <div id="sharesInputContainer" class="space-y-2">
               <div class="flex gap-2">
-                <input type="text" placeholder="Enter share" class="share-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                <button onclick="addShareInput()" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">+</button>
+                <input
+                  type="text"
+                  placeholder="Enter share"
+                  class="share-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+                <button
+                  onclick="addShareInput()"
+                  class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                >
+                  +
+                </button>
               </div>
             </div>
-            <button onclick="combineShares()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Combine Shares</button>
-            <div id="secretOutput" class="mt-4 p-4 bg-gray-100 rounded-md hidden">
+            <button
+              onclick="combineShares()"
+              class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            >
+              Combine Shares
+            </button>
+            <div
+              id="secretOutput"
+              class="mt-4 p-4 bg-gray-100 rounded-md hidden"
+            >
               <h4 class="font-medium mb-2">Recovered Secret:</h4>
               <p id="recoveredSecret" class="break-all"></p>
             </div>
@@ -249,7 +296,7 @@
       </div>
 
       <script>
-        const API_URL = "http://localhost:3000";
+        const API_URL = "/api";
 
         // Key Generation
         document
@@ -332,63 +379,69 @@
         });
 
         // Encryption
-        document.getElementById("encrypt").addEventListener("click", async () => {
-          const data = document.getElementById("encryptData").value;
-          const key = document.getElementById("encryptPassword").value;
-          try {
-            const response = await axios.post(`${API_URL}/encrypt`, {
-              data,
-              key,
-            });
-            document.getElementById("encryptResult").value =
-              response.data.data.encrypted;
-          } catch (error) {
-            alert("Error encrypting data: " + error.message);
-          }
-        });
+        document
+          .getElementById("encrypt")
+          .addEventListener("click", async () => {
+            const data = document.getElementById("encryptData").value;
+            const key = document.getElementById("encryptPassword").value;
+            try {
+              const response = await axios.post(`${API_URL}/encrypt`, {
+                data,
+                key,
+              });
+              document.getElementById("encryptResult").value =
+                response.data.data.encrypted;
+            } catch (error) {
+              alert("Error encrypting data: " + error.message);
+            }
+          });
 
-        document.getElementById("decrypt").addEventListener("click", async () => {
-          const data = document.getElementById("encryptResult").value;
-          const key = document.getElementById("encryptPassword").value;
-          try {
-            const response = await axios.post(`${API_URL}/decrypt`, {
-              data,
-              key,
-            });
-            document.getElementById("encryptResult").value =
-              response.data.data.decrypted;
-          } catch (error) {
-            alert("Error decrypting data: " + error.message);
-          }
-        });
+        document
+          .getElementById("decrypt")
+          .addEventListener("click", async () => {
+            const data = document.getElementById("encryptResult").value;
+            const key = document.getElementById("encryptPassword").value;
+            try {
+              const response = await axios.post(`${API_URL}/decrypt`, {
+                data,
+                key,
+              });
+              document.getElementById("encryptResult").value =
+                response.data.data.decrypted;
+            } catch (error) {
+              alert("Error decrypting data: " + error.message);
+            }
+          });
 
         // Shamir Secret Sharing Functions
         async function splitSecret() {
-          const secret = document.getElementById('shamirSecret').value;
-          const shares = parseInt(document.getElementById('totalShares').value);
-          const threshold = parseInt(document.getElementById('requiredShares').value);
+          const secret = document.getElementById("shamirSecret").value;
+          const shares = parseInt(document.getElementById("totalShares").value);
+          const threshold = parseInt(
+            document.getElementById("requiredShares").value
+          );
 
           if (!secret) {
-            alert('Please enter a secret');
+            alert("Please enter a secret");
             return;
           }
 
           try {
-            const response = await fetch('/shamir/split', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ secret, shares, threshold })
+            const response = await fetch("/shamir/split", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ secret, shares, threshold }),
             });
 
             const result = await response.json();
             if (result.success) {
-              const sharesOutput = document.getElementById('sharesOutput');
-              const sharesList = document.getElementById('sharesList');
-              sharesList.innerHTML = '';
-              
+              const sharesOutput = document.getElementById("sharesOutput");
+              const sharesList = document.getElementById("sharesList");
+              sharesList.innerHTML = "";
+
               result.data.shares.forEach((share, index) => {
-                const shareDiv = document.createElement('div');
-                shareDiv.className = 'flex gap-2 items-center';
+                const shareDiv = document.createElement("div");
+                shareDiv.className = "flex gap-2 items-center";
                 shareDiv.innerHTML = `
                   <span class="text-sm font-medium">Share ${index + 1}:</span>
                   <input type="text" value="${share}" readonly class="flex-1 p-2 bg-white rounded border">
@@ -396,21 +449,21 @@
                 `;
                 sharesList.appendChild(shareDiv);
               });
-              
-              sharesOutput.classList.remove('hidden');
-              alert('Secret split successfully');
+
+              sharesOutput.classList.remove("hidden");
+              alert("Secret split successfully");
             } else {
               alert(result.error);
             }
           } catch (error) {
-            alert('Failed to split secret');
+            alert("Failed to split secret");
           }
         }
 
         function addShareInput() {
-          const container = document.getElementById('sharesInputContainer');
-          const div = document.createElement('div');
-          div.className = 'flex gap-2';
+          const container = document.getElementById("sharesInputContainer");
+          const div = document.createElement("div");
+          div.className = "flex gap-2";
           div.innerHTML = `
             <input type="text" placeholder="Enter share" class="share-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
             <button onclick="this.parentElement.remove()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">-</button>
@@ -419,42 +472,45 @@
         }
 
         async function combineShares() {
-          const shareInputs = document.querySelectorAll('.share-input');
-          const shares = Array.from(shareInputs).map(input => input.value).filter(Boolean);
+          const shareInputs = document.querySelectorAll(".share-input");
+          const shares = Array.from(shareInputs)
+            .map((input) => input.value)
+            .filter(Boolean);
 
           if (shares.length < 2) {
-            alert('Please enter at least 2 shares');
+            alert("Please enter at least 2 shares");
             return;
           }
 
           try {
-            const response = await fetch('/shamir/combine', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ shares })
+            const response = await fetch("/shamir/combine", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ shares }),
             });
 
             const result = await response.json();
             if (result.success) {
-              const secretOutput = document.getElementById('secretOutput');
-              const recoveredSecret = document.getElementById('recoveredSecret');
+              const secretOutput = document.getElementById("secretOutput");
+              const recoveredSecret =
+                document.getElementById("recoveredSecret");
               recoveredSecret.textContent = result.data.secret;
-              secretOutput.classList.remove('hidden');
-              alert('Shares combined successfully');
+              secretOutput.classList.remove("hidden");
+              alert("Shares combined successfully");
             } else {
               alert(result.error);
             }
           } catch (error) {
-            alert('Failed to combine shares');
+            alert("Failed to combine shares");
           }
         }
 
         async function copyToClipboard(element) {
           try {
             await navigator.clipboard.writeText(element.value);
-            alert('Copied to clipboard');
+            alert("Copied to clipboard");
           } catch (err) {
-            alert('Failed to copy');
+            alert("Failed to copy");
           }
         }
       </script>

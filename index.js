@@ -5,14 +5,14 @@ import { BSVSignature } from "./Signature.js";
 import Hash from "./Hashes.js";
 import Shamir from "./Shamir.js";
 import * as Encryption from "./Encryption.js";
-import swaggerUi from 'swagger-ui-express';
-import specs from './swagger.js';
+import swaggerUi from "swagger-ui-express";
+import specs from "./swagger.js";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+app.use(express.static("public"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 /**
  * @swagger
@@ -48,7 +48,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 /**
  * @swagger
- * /keys/generate:
+ * /api/keys/generate:
  *   post:
  *     summary: Generate new BSV keys with mnemonic
  *     description: Generates a new 24-word mnemonic and derives multiple key types using BIP44 paths
@@ -61,7 +61,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
  *             schema:
  *               $ref: '#/components/schemas/KeyResponse'
  */
-app.post("/keys/generate", (req, res) => {
+app.post("/api/keys/generate", (req, res) => {
   try {
     const keys = BSVKeys.generateAllKeys();
     res.json({ success: true, data: keys });
@@ -72,7 +72,7 @@ app.post("/keys/generate", (req, res) => {
 
 /**
  * @swagger
- * /keys/from-mnemonic:
+ * /api/keys/from-mnemonic:
  *   post:
  *     summary: Generate keys from existing mnemonic
  *     description: Derives multiple key types from a provided mnemonic using BIP44 paths
@@ -96,7 +96,7 @@ app.post("/keys/generate", (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/KeyResponse'
  */
-app.post("/keys/from-mnemonic", (req, res) => {
+app.post("/api/keys/from-mnemonic", (req, res) => {
   try {
     const { mnemonic } = req.body;
     if (!mnemonic) throw new Error("Mnemonic is required");
@@ -129,7 +129,7 @@ app.post("/keys/from-mnemonic", (req, res) => {
 
 /**
  * @swagger
- * /sign/ecdsa:
+ * /api/sign/ecdsa:
  *   post:
  *     summary: Create ECDSA signature
  *     description: Signs data using ECDSA and returns a DER-encoded signature
@@ -160,7 +160,7 @@ app.post("/keys/from-mnemonic", (req, res) => {
  *                   type: string
  *                   description: DER-encoded signature
  */
-app.post("/sign/ecdsa", (req, res) => {
+app.post("/api/sign/ecdsa", (req, res) => {
   try {
     const { data, wif, purpose } = req.body;
     if (!data || !wif) throw new Error("Data and WIF are required");
@@ -181,7 +181,7 @@ app.post("/sign/ecdsa", (req, res) => {
 
 /**
  * @swagger
- * /sign/eddsa:
+ * /api/sign/eddsa:
  *   post:
  *     summary: Create EdDSA signature
  *     description: Signs data using EdDSA (Ed25519) and returns a 128-character hex signature
@@ -212,7 +212,7 @@ app.post("/sign/ecdsa", (req, res) => {
  *                   type: string
  *                   description: 128-character hex signature
  */
-app.post("/sign/eddsa", (req, res) => {
+app.post("/api/sign/eddsa", (req, res) => {
   try {
     const { data, wif } = req.body;
     if (!data || !wif) throw new Error("Data and WIF are required");
@@ -233,7 +233,7 @@ app.post("/sign/eddsa", (req, res) => {
 
 /**
  * @swagger
- * /verify/ecdsa:
+ * /api/verify/ecdsa:
  *   post:
  *     summary: Verify ECDSA signature
  *     description: Verifies a signature using ECDSA
@@ -267,7 +267,7 @@ app.post("/sign/eddsa", (req, res) => {
  *                   type: boolean
  *                   description: Whether the signature is valid
  */
-app.post("/verify/ecdsa", (req, res) => {
+app.post("/api/verify/ecdsa", (req, res) => {
   try {
     const { data, signature, publicKey } = req.body;
     if (!data || !signature || !publicKey) {
@@ -284,7 +284,7 @@ app.post("/verify/ecdsa", (req, res) => {
 
 /**
  * @swagger
- * /verify/eddsa:
+ * /api/verify/eddsa:
  *   post:
  *     summary: Verify EdDSA signature
  *     description: Verifies a signature using EdDSA (Ed25519)
@@ -318,7 +318,7 @@ app.post("/verify/ecdsa", (req, res) => {
  *                   type: boolean
  *                   description: Whether the signature is valid
  */
-app.post("/verify/eddsa", (req, res) => {
+app.post("/api/verify/eddsa", (req, res) => {
   try {
     const { data, signature, wif } = req.body;
     if (!data || !signature || !wif) {
@@ -335,7 +335,7 @@ app.post("/verify/eddsa", (req, res) => {
 
 /**
  * @swagger
- * /hash:
+ * /api/hash:
  *   post:
  *     summary: Create hash
  *     description: Creates a hash of the input data using the specified algorithm
@@ -367,7 +367,7 @@ app.post("/verify/eddsa", (req, res) => {
  *                   type: string
  *                   description: Resulting hash in hex format
  */
-app.post("/hash", (req, res) => {
+app.post("/api/hash", (req, res) => {
   try {
     const { data, algorithm } = req.body;
     if (!data) throw new Error("Data is required");
@@ -398,7 +398,7 @@ app.post("/hash", (req, res) => {
 
 /**
  * @swagger
- * /hash/verify:
+ * /api/hash/verify:
  *   post:
  *     summary: Verify hash
  *     description: Verifies a hash using the specified algorithm
@@ -433,7 +433,7 @@ app.post("/hash", (req, res) => {
  *                   type: boolean
  *                   description: Whether the hash is valid
  */
-app.post("/hash/verify", (req, res) => {
+app.post("/api/hash/verify", (req, res) => {
   try {
     const { data, hash, algorithm } = req.body;
     if (!data || !hash) throw new Error("Data and hash are required");
@@ -447,7 +447,7 @@ app.post("/hash/verify", (req, res) => {
 
 /**
  * @swagger
- * /encrypt:
+ * /api/encrypt:
  *   post:
  *     summary: Encrypt data
  *     description: Encrypts data using AES with password-based key derivation
@@ -478,7 +478,7 @@ app.post("/hash/verify", (req, res) => {
  *                   type: string
  *                   description: Encrypted data in base64 format
  */
-app.post("/encrypt", (req, res) => {
+app.post("/api/encrypt", (req, res) => {
   try {
     const { data, key, isObject } = req.body;
     if (!data || !key) throw new Error("Data and key are required");
@@ -495,7 +495,7 @@ app.post("/encrypt", (req, res) => {
 
 /**
  * @swagger
- * /decrypt:
+ * /api/decrypt:
  *   post:
  *     summary: Decrypt data
  *     description: Decrypts AES-encrypted data using the provided key
@@ -526,7 +526,7 @@ app.post("/encrypt", (req, res) => {
  *                   type: string
  *                   description: Decrypted data
  */
-app.post("/decrypt", (req, res) => {
+app.post("/api/decrypt", (req, res) => {
   try {
     const { data, key, isObject } = req.body;
     if (!data || !key) throw new Error("Data and key are required");
@@ -543,7 +543,7 @@ app.post("/decrypt", (req, res) => {
 
 /**
  * @swagger
- * /shamir/split:
+ * /api/shamir/split:
  *   post:
  *     summary: Split a secret using Shamir's Secret Sharing
  *     description: Splits a secret into multiple shares with a configurable threshold
@@ -581,26 +581,31 @@ app.post("/decrypt", (req, res) => {
  *                     type: string
  *                   description: Array of hex-encoded shares
  */
-app.post("/shamir/split", (req, res) => {
+app.post("/api/shamir/split", (req, res) => {
   try {
     const { secret, shares, threshold } = req.body;
     if (!secret) throw new Error("Secret is required");
     if (!shares || !Number.isInteger(shares) || shares < 2) {
       throw new Error("Shares must be an integer >= 2");
     }
-    if (!threshold || !Number.isInteger(threshold) || threshold < 2 || threshold > shares) {
+    if (
+      !threshold ||
+      !Number.isInteger(threshold) ||
+      threshold < 2 ||
+      threshold > shares
+    ) {
       throw new Error("Threshold must be an integer >= 2 and <= shares");
     }
 
     const shamir = new Shamir();
     const splitShares = shamir.split(secret, { shares, threshold });
-    res.json({ 
-      success: true, 
-      data: { 
+    res.json({
+      success: true,
+      data: {
         shares: splitShares,
         totalShares: shares,
-        requiredShares: threshold
-      } 
+        requiredShares: threshold,
+      },
     });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -609,7 +614,7 @@ app.post("/shamir/split", (req, res) => {
 
 /**
  * @swagger
- * /shamir/combine:
+ * /api/shamir/combine:
  *   post:
  *     summary: Combine Shamir secret shares
  *     description: Combines the provided shares to reconstruct the original secret
@@ -640,28 +645,36 @@ app.post("/shamir/split", (req, res) => {
  *                   type: string
  *                   description: Reconstructed secret
  */
-app.post("/shamir/combine", (req, res) => {
+app.post("/api/shamir/combine", (req, res) => {
   try {
     const { shares } = req.body;
     if (!shares || !Array.isArray(shares)) {
       throw new Error("Shares must be provided as an array");
     }
     if (shares.length < 2) {
-      throw new Error("At least 2 shares are required to reconstruct the secret");
+      throw new Error(
+        "At least 2 shares are required to reconstruct the secret"
+      );
     }
-    if (!shares.every(share => typeof share === "string" && /^[0-9a-fA-F]+$/.test(share))) {
+    if (
+      !shares.every(
+        (share) => typeof share === "string" && /^[0-9a-fA-F]+$/.test(share)
+      )
+    ) {
       throw new Error("All shares must be valid hex strings");
     }
 
     const shamir = new Shamir();
     const secret = shamir.combine(shares);
-    
+
     // Verify the secret is valid UTF-8
     try {
-      const secretStr = secret.toString('utf8');
+      const secretStr = secret.toString("utf8");
       res.json({ success: true, data: { secret: secretStr } });
     } catch (e) {
-      throw new Error("Failed to reconstruct secret: invalid share combination");
+      throw new Error(
+        "Failed to reconstruct secret: invalid share combination"
+      );
     }
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
@@ -669,7 +682,7 @@ app.post("/shamir/combine", (req, res) => {
 });
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("/api/health", (req, res) => {
   res.json({ status: "healthy", timestamp: new Date().toISOString() });
 });
 
@@ -678,18 +691,18 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`
 Available endpoints:
-- POST /keys/generate              Generate new key pairs
-- POST /keys/from-mnemonic        Generate keys from mnemonic
-- POST /sign/ecdsa                Create ECDSA signature
-- POST /sign/eddsa                Create EdDSA signature
-- POST /verify/ecdsa              Verify ECDSA signature
-- POST /verify/eddsa              Verify EdDSA signature
-- POST /hash                      Create hash (sha256, sha512, double256, hash160)
-- POST /hash/verify              Verify hash
-- POST /encrypt                   Encrypt data
-- POST /decrypt                   Decrypt data
-- POST /shamir/split              Split secret using Shamir's Secret Sharing
-- POST /shamir/combine            Combine shares to reconstruct secret
-- GET  /health                    Health check
+- POST /api/keys/generate              Generate new key pairs
+- POST /api/keys/from-mnemonic        Generate keys from mnemonic
+- POST /api/sign/ecdsa                Create ECDSA signature
+- POST /api/sign/eddsa                Create EdDSA signature
+- POST /api/verify/ecdsa              Verify ECDSA signature
+- POST /api/verify/eddsa              Verify EdDSA signature
+- POST /api/hash                      Create hash (sha256, sha512, double256, hash160)
+- POST /api/hash/verify              Verify hash
+- POST /api/encrypt                   Encrypt data
+- POST /api/decrypt                   Decrypt data
+- POST /api/shamir/split              Split secret using Shamir's Secret Sharing
+- POST /api/shamir/combine            Combine shares to reconstruct secret
+- GET  /api/health                    Health check
     `);
 });
