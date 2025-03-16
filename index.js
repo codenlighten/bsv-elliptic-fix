@@ -9,7 +9,7 @@ import * as Encryption from "./Encryption.js";
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static('public'));
 
 // Key Management Endpoints
 app.post("/keys/generate", (req, res) => {
@@ -194,31 +194,56 @@ app.post("/decrypt", (req, res) => {
   }
 });
 
-// Shamir Endpoints
-//split
+// Shamir Secret Sharing Endpoints
 app.post("/shamir/split", (req, res) => {
   try {
     const { secret, shares, threshold } = req.body;
-    if (!secret || !shares || !threshold)
-      throw new Error("Secret, shares, and threshold are required");
+    if (!secret) throw new Error("Secret is required");
+    if (!shares || !Number.isInteger(shares) || shares < 2) {
+      throw new Error("Shares must be an integer >= 2");
+    }
+    if (!threshold || !Number.isInteger(threshold) || threshold < 2 || threshold > shares) {
+      throw new Error("Threshold must be an integer >= 2 and <= shares");
+    }
 
     const shamir = new Shamir();
-    const sharesSplits = shamir.split(secret, { shares, threshold });
-    res.json({ success: true, data: { shares: sharesSplits } });
+    const splitShares = shamir.split(secret, { shares, threshold });
+    res.json({ 
+      success: true, 
+      data: { 
+        shares: splitShares,
+        totalShares: shares,
+        requiredShares: threshold
+      } 
+    });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
 
-//combine
 app.post("/shamir/combine", (req, res) => {
   try {
     const { shares } = req.body;
-    if (!shares) throw new Error("Shares are required");
+    if (!shares || !Array.isArray(shares)) {
+      throw new Error("Shares must be provided as an array");
+    }
+    if (shares.length < 2) {
+      throw new Error("At least 2 shares are required to reconstruct the secret");
+    }
+    if (!shares.every(share => typeof share === "string" && /^[0-9a-fA-F]+$/.test(share))) {
+      throw new Error("All shares must be valid hex strings");
+    }
 
     const shamir = new Shamir();
     const secret = shamir.combine(shares);
-    res.json({ success: true, data: { secret } });
+    
+    // Verify the secret is valid UTF-8
+    try {
+      const secretStr = secret.toString('utf8');
+      res.json({ success: true, data: { secret: secretStr } });
+    } catch (e) {
+      throw new Error("Failed to reconstruct secret: invalid share combination");
+    }
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
