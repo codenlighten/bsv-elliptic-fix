@@ -148,8 +148,8 @@
       </div>
 
       <!-- Encryption Section -->
-      <div class="bg-white rounded-lg shadow-lg p-6">
-        <h2 class="text-2xl font-semibold mb-4">Encryption</h2>
+      <div class="mb-8 p-6 bg-white rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold mb-4">Encryption</h2>
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700"
@@ -199,205 +199,265 @@
         </div>
       </div>
 
-      <!-- Shamir's Secret Sharing Section -->
-      <div class="bg-white rounded-lg shadow-lg p-6">
-        <h2 class="text-2xl font-semibold mb-4">Shamir's Secret Sharing</h2>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700"
-              >Secret</label
-            >
-            <input
-              type="text"
-              id="shamirSecret"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
-            />
+      <!-- Shamir Secret Sharing Section -->
+      <div class="mb-8 p-6 bg-white rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold mb-4">Shamir Secret Sharing</h2>
+        
+        <!-- Split Secret -->
+        <div class="mb-6">
+          <h3 class="text-xl font-semibold mb-3">Split Secret</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Secret</label>
+              <input type="text" id="shamirSecret" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Total Shares</label>
+                <input type="number" id="totalShares" min="2" value="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Required Shares</label>
+                <input type="number" id="requiredShares" min="2" value="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+              </div>
+            </div>
+            <button onclick="splitSecret()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Split Secret</button>
+            <div id="sharesOutput" class="mt-4 p-4 bg-gray-100 rounded-md hidden">
+              <h4 class="font-medium mb-2">Generated Shares:</h4>
+              <div id="sharesList" class="space-y-2"></div>
+            </div>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700"
-              >Shares</label
-            >
-            <input
-              type="number"
-              id="shamirShares"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
-            />
+        </div>
+
+        <!-- Combine Shares -->
+        <div>
+          <h3 class="text-xl font-semibold mb-3">Combine Shares</h3>
+          <div class="space-y-4">
+            <div id="sharesInputContainer" class="space-y-2">
+              <div class="flex gap-2">
+                <input type="text" placeholder="Enter share" class="share-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <button onclick="addShareInput()" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">+</button>
+              </div>
+            </div>
+            <button onclick="combineShares()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Combine Shares</button>
+            <div id="secretOutput" class="mt-4 p-4 bg-gray-100 rounded-md hidden">
+              <h4 class="font-medium mb-2">Recovered Secret:</h4>
+              <p id="recoveredSecret" class="break-all"></p>
+            </div>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700"
-              >Threshold</label
-            >
-            <input
-              type="number"
-              id="shamirThreshold"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
-            />
-          </div>
-          <div class="flex space-x-4">
-            <button
-              id="shamirSplit"
-              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              Split
-            </button>
-            <button
-              id="shamirCombine"
-              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              Combine
-            </button>
-          </div>
-          <div id="shamirResult" class="mt-4"></div>
         </div>
       </div>
+
+      <script>
+        const API_URL = "http://localhost:3000";
+
+        // Key Generation
+        document
+          .getElementById("generateKeys")
+          .addEventListener("click", async () => {
+            try {
+              const response = await axios.post(`${API_URL}/keys/generate`);
+              const { mnemonic, keys } = response.data.data;
+              document.getElementById("mnemonic").value = mnemonic;
+
+              const keyList = document.getElementById("keyList");
+              keyList.innerHTML = keys
+                .map(
+                  (key) => `
+                      <div class="border p-4 rounded">
+                          <div class="font-semibold">${key.type}</div>
+                          <div class="text-sm text-gray-600">Path: ${key.path}</div>
+                          <div class="text-sm text-gray-600">WIF: ${key.wif}</div>
+                          <div class="text-sm text-gray-600">Address: ${key.address}</div>
+                      </div>
+                  `
+                )
+                .join("");
+            } catch (error) {
+              alert("Error generating keys: " + error.message);
+            }
+          });
+
+        // Signing
+        document
+          .getElementById("signECDSA")
+          .addEventListener("click", async () => {
+            const data = document.getElementById("signMessage").value;
+            const wif = document.getElementById("signWIF").value;
+            try {
+              const response = await axios.post(`${API_URL}/sign/ecdsa`, {
+                data,
+                wif,
+              });
+              document.getElementById("signature").value =
+                response.data.data.signature;
+            } catch (error) {
+              alert("Error signing with ECDSA: " + error.message);
+            }
+          });
+
+        document
+          .getElementById("signEdDSA")
+          .addEventListener("click", async () => {
+            const data = document.getElementById("signMessage").value;
+            const wif = document.getElementById("signWIF").value;
+            try {
+              const response = await axios.post(`${API_URL}/sign/eddsa`, {
+                data,
+                wif,
+              });
+              document.getElementById("signature").value =
+                response.data.data.signature;
+            } catch (error) {
+              alert("Error signing with EdDSA: " + error.message);
+            }
+          });
+
+        // Hashing
+        document.querySelectorAll(".hash-btn").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const data = document.getElementById("hashData").value;
+            const algorithm = button.dataset.algorithm;
+            try {
+              const response = await axios.post(`${API_URL}/hash`, {
+                data,
+                algorithm,
+              });
+              document.getElementById("hashResult").value =
+                response.data.data.hash;
+            } catch (error) {
+              alert("Error hashing data: " + error.message);
+            }
+          });
+        });
+
+        // Encryption
+        document.getElementById("encrypt").addEventListener("click", async () => {
+          const data = document.getElementById("encryptData").value;
+          const key = document.getElementById("encryptPassword").value;
+          try {
+            const response = await axios.post(`${API_URL}/encrypt`, {
+              data,
+              key,
+            });
+            document.getElementById("encryptResult").value =
+              response.data.data.encrypted;
+          } catch (error) {
+            alert("Error encrypting data: " + error.message);
+          }
+        });
+
+        document.getElementById("decrypt").addEventListener("click", async () => {
+          const data = document.getElementById("encryptResult").value;
+          const key = document.getElementById("encryptPassword").value;
+          try {
+            const response = await axios.post(`${API_URL}/decrypt`, {
+              data,
+              key,
+            });
+            document.getElementById("encryptResult").value =
+              response.data.data.decrypted;
+          } catch (error) {
+            alert("Error decrypting data: " + error.message);
+          }
+        });
+
+        // Shamir Secret Sharing Functions
+        async function splitSecret() {
+          const secret = document.getElementById('shamirSecret').value;
+          const shares = parseInt(document.getElementById('totalShares').value);
+          const threshold = parseInt(document.getElementById('requiredShares').value);
+
+          if (!secret) {
+            alert('Please enter a secret');
+            return;
+          }
+
+          try {
+            const response = await fetch('/shamir/split', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ secret, shares, threshold })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+              const sharesOutput = document.getElementById('sharesOutput');
+              const sharesList = document.getElementById('sharesList');
+              sharesList.innerHTML = '';
+              
+              result.data.shares.forEach((share, index) => {
+                const shareDiv = document.createElement('div');
+                shareDiv.className = 'flex gap-2 items-center';
+                shareDiv.innerHTML = `
+                  <span class="text-sm font-medium">Share ${index + 1}:</span>
+                  <input type="text" value="${share}" readonly class="flex-1 p-2 bg-white rounded border">
+                  <button onclick="copyToClipboard(this.previousElementSibling)" class="px-2 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700">Copy</button>
+                `;
+                sharesList.appendChild(shareDiv);
+              });
+              
+              sharesOutput.classList.remove('hidden');
+              alert('Secret split successfully');
+            } else {
+              alert(result.error);
+            }
+          } catch (error) {
+            alert('Failed to split secret');
+          }
+        }
+
+        function addShareInput() {
+          const container = document.getElementById('sharesInputContainer');
+          const div = document.createElement('div');
+          div.className = 'flex gap-2';
+          div.innerHTML = `
+            <input type="text" placeholder="Enter share" class="share-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            <button onclick="this.parentElement.remove()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">-</button>
+          `;
+          container.appendChild(div);
+        }
+
+        async function combineShares() {
+          const shareInputs = document.querySelectorAll('.share-input');
+          const shares = Array.from(shareInputs).map(input => input.value).filter(Boolean);
+
+          if (shares.length < 2) {
+            alert('Please enter at least 2 shares');
+            return;
+          }
+
+          try {
+            const response = await fetch('/shamir/combine', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ shares })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+              const secretOutput = document.getElementById('secretOutput');
+              const recoveredSecret = document.getElementById('recoveredSecret');
+              recoveredSecret.textContent = result.data.secret;
+              secretOutput.classList.remove('hidden');
+              alert('Shares combined successfully');
+            } else {
+              alert(result.error);
+            }
+          } catch (error) {
+            alert('Failed to combine shares');
+          }
+        }
+
+        async function copyToClipboard(element) {
+          try {
+            await navigator.clipboard.writeText(element.value);
+            alert('Copied to clipboard');
+          } catch (err) {
+            alert('Failed to copy');
+          }
+        }
+      </script>
     </div>
-
-    <script>
-      const API_URL = "http://localhost:3000";
-
-      // Key Generation
-      document
-        .getElementById("generateKeys")
-        .addEventListener("click", async () => {
-          try {
-            const response = await axios.post(`${API_URL}/keys/generate`);
-            const { mnemonic, keys } = response.data.data;
-            document.getElementById("mnemonic").value = mnemonic;
-
-            const keyList = document.getElementById("keyList");
-            keyList.innerHTML = keys
-              .map(
-                (key) => `
-                    <div class="border p-4 rounded">
-                        <div class="font-semibold">${key.type}</div>
-                        <div class="text-sm text-gray-600">Path: ${key.path}</div>
-                        <div class="text-sm text-gray-600">WIF: ${key.wif}</div>
-                        <div class="text-sm text-gray-600">Address: ${key.address}</div>
-                    </div>
-                `
-              )
-              .join("");
-          } catch (error) {
-            alert("Error generating keys: " + error.message);
-          }
-        });
-
-      // Signing
-      document
-        .getElementById("signECDSA")
-        .addEventListener("click", async () => {
-          const data = document.getElementById("signMessage").value;
-          const wif = document.getElementById("signWIF").value;
-          try {
-            const response = await axios.post(`${API_URL}/sign/ecdsa`, {
-              data,
-              wif,
-            });
-            document.getElementById("signature").value =
-              response.data.data.signature;
-          } catch (error) {
-            alert("Error signing with ECDSA: " + error.message);
-          }
-        });
-
-      document
-        .getElementById("signEdDSA")
-        .addEventListener("click", async () => {
-          const data = document.getElementById("signMessage").value;
-          const wif = document.getElementById("signWIF").value;
-          try {
-            const response = await axios.post(`${API_URL}/sign/eddsa`, {
-              data,
-              wif,
-            });
-            document.getElementById("signature").value =
-              response.data.data.signature;
-          } catch (error) {
-            alert("Error signing with EdDSA: " + error.message);
-          }
-        });
-
-      // Hashing
-      document.querySelectorAll(".hash-btn").forEach((button) => {
-        button.addEventListener("click", async () => {
-          const data = document.getElementById("hashData").value;
-          const algorithm = button.dataset.algorithm;
-          try {
-            const response = await axios.post(`${API_URL}/hash`, {
-              data,
-              algorithm,
-            });
-            document.getElementById("hashResult").value =
-              response.data.data.hash;
-          } catch (error) {
-            alert("Error hashing data: " + error.message);
-          }
-        });
-      });
-
-      // Encryption
-      document.getElementById("encrypt").addEventListener("click", async () => {
-        const data = document.getElementById("encryptData").value;
-        const key = document.getElementById("encryptPassword").value;
-        try {
-          const response = await axios.post(`${API_URL}/encrypt`, {
-            data,
-            key,
-          });
-          document.getElementById("encryptResult").value =
-            response.data.data.encrypted;
-        } catch (error) {
-          alert("Error encrypting data: " + error.message);
-        }
-      });
-
-      document.getElementById("decrypt").addEventListener("click", async () => {
-        const data = document.getElementById("encryptResult").value;
-        const key = document.getElementById("encryptPassword").value;
-        try {
-          const response = await axios.post(`${API_URL}/decrypt`, {
-            data,
-            key,
-          });
-          document.getElementById("encryptResult").value =
-            response.data.data.decrypted;
-        } catch (error) {
-          alert("Error decrypting data: " + error.message);
-        }
-      });
-      // Shamir
-      document
-        .getElementById("shamirSplit")
-        .addEventListener("click", async () => {
-          const secret = document.getElementById("shamirSecret").value;
-          const shares = document.getElementById("shamirShares").value;
-          const threshold = document.getElementById("shamirThreshold").value;
-          try {
-            const response = await axios.post(`${API_URL}/shamir/split`, {
-              secret,
-              shares,
-              threshold,
-            });
-            document.getElementById("shamirResult").innerHTML =
-              response.data.data.shares;
-          } catch (error) {
-            alert("Error splitting secret: " + error.message);
-          }
-        });
-      document
-        .getElementById("shamirCombine")
-        .addEventListener("click", async () => {
-          const shares = document.getElementById("shamirShares").value;
-          try {
-            const response = await axios.post(`${API_URL}/shamir/combine`, {
-              shares,
-            });
-            document.getElementById("shamirResult").innerHTML =
-              response.data.data.secret;
-          } catch (error) {
-            alert("Error combining shares: " + error.message);
-          }
-        });
-    </script>
   </body>
 </html>
