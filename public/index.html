@@ -15,7 +15,22 @@
       <h1 class="text-4xl font-bold text-center mb-8 text-blue-600">
         BSV Key Management & Cryptography
       </h1>
-
+      <!-- UUID -->
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h3 class="text-xl font-semibold mb-3">UUID</h3>
+        <div class="space-y-4">
+          <button
+            id="generateUUID"
+            class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          >
+            Generate UUID
+          </button>
+          <div id="uuidOutput" class="mt-4 p-4 bg-gray-100 rounded-md hidden">
+            <h4 class="font-medium mb-2">Generated UUID:</h4>
+            <p id="uuid" class="break-all"></p>
+          </div>
+        </div>
+      </div>
       <!-- Key Generation Section -->
       <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
         <h2 class="text-2xl font-semibold mb-4">Key Generation</h2>
@@ -504,6 +519,18 @@
             alert("Failed to combine shares");
           }
         }
+
+        // UUID
+        document
+          .getElementById("generateUUID")
+          .addEventListener("click", () => {
+            axios.get("/api/uuid").then((response) => {
+              const uuid = response.data.uuid;
+              document.getElementById("uuid").textContent = uuid;
+              const uuidOutput = document.getElementById("uuidOutput");
+              uuidOutput.classList.remove("hidden");
+            });
+          });
 
         async function copyToClipboard(element) {
           try {

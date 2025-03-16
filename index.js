@@ -7,7 +7,7 @@ import Shamir from "./Shamir.js";
 import * as Encryption from "./Encryption.js";
 import swaggerUi from "swagger-ui-express";
 import specs from "./swagger.js";
-import uuid from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
 const app = express();
 app.use(cors());
@@ -703,7 +703,7 @@ app.post("/api/shamir/combine", (req, res) => {
  *                   description: Generated UUID
  */
 app.get("/api/uuid", (req, res) => {
-  res.json({ uuid: uuid.v4() });
+  res.json({ uuid: uuidv4() });
 });
 
 // Health check endpoint
