@@ -1,198 +1,403 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BSV Key Management & Cryptography</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-</head>
-<body class="bg-gray-100">
+  </head>
+  <body class="bg-gray-100">
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-4xl font-bold text-center mb-8 text-blue-600">BSV Key Management & Cryptography</h1>
-        
-        <!-- Key Generation Section -->
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-semibold mb-4">Key Generation</h2>
-            <div class="space-y-4">
-                <button id="generateKeys" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                    Generate New Keys
-                </button>
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700">Mnemonic</label>
-                    <textarea id="mnemonic" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" rows="2" readonly></textarea>
-                </div>
-                <div id="keyList" class="space-y-2"></div>
-            </div>
-        </div>
+      <h1 class="text-4xl font-bold text-center mb-8 text-blue-600">
+        BSV Key Management & Cryptography
+      </h1>
 
-        <!-- Signing Section -->
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-semibold mb-4">Signing</h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Message</label>
-                    <input type="text" id="signMessage" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">WIF Key</label>
-                    <input type="text" id="signWIF" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
-                </div>
-                <div class="flex space-x-4">
-                    <button id="signECDSA" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                        Sign ECDSA
-                    </button>
-                    <button id="signEdDSA" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                        Sign EdDSA
-                    </button>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Signature</label>
-                    <textarea id="signature" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" rows="3" readonly></textarea>
-                </div>
-            </div>
+      <!-- Key Generation Section -->
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Key Generation</h2>
+        <div class="space-y-4">
+          <button
+            id="generateKeys"
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Generate New Keys
+          </button>
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700"
+              >Mnemonic</label
+            >
+            <textarea
+              id="mnemonic"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+              rows="2"
+              readonly
+            ></textarea>
+          </div>
+          <div id="keyList" class="space-y-2"></div>
         </div>
+      </div>
 
-        <!-- Hashing Section -->
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-semibold mb-4">Hashing</h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Data to Hash</label>
-                    <input type="text" id="hashData" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
-                </div>
-                <div class="flex space-x-4">
-                    <button data-algorithm="sha256" class="hash-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
-                        SHA256
-                    </button>
-                    <button data-algorithm="sha512" class="hash-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
-                        SHA512
-                    </button>
-                    <button data-algorithm="double256" class="hash-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
-                        Double SHA256
-                    </button>
-                    <button data-algorithm="hash160" class="hash-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
-                        HASH160
-                    </button>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Hash Result</label>
-                    <textarea id="hashResult" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" rows="2" readonly></textarea>
-                </div>
-            </div>
+      <!-- Signing Section -->
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Signing</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Message</label
+            >
+            <input
+              type="text"
+              id="signMessage"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >WIF Key</label
+            >
+            <input
+              type="text"
+              id="signWIF"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+            />
+          </div>
+          <div class="flex space-x-4">
+            <button
+              id="signECDSA"
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              Sign ECDSA
+            </button>
+            <button
+              id="signEdDSA"
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              Sign EdDSA
+            </button>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Signature</label
+            >
+            <textarea
+              id="signature"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+              rows="3"
+              readonly
+            ></textarea>
+          </div>
         </div>
+      </div>
 
-        <!-- Encryption Section -->
-        <div class="bg-white rounded-lg shadow-lg p-6">
-            <h2 class="text-2xl font-semibold mb-4">Encryption</h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Data to Encrypt</label>
-                    <input type="text" id="encryptData" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="encryptPassword" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2">
-                </div>
-                <div class="flex space-x-4">
-                    <button id="encrypt" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
-                        Encrypt
-                    </button>
-                    <button id="decrypt" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
-                        Decrypt
-                    </button>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Result</label>
-                    <textarea id="encryptResult" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" rows="3" readonly></textarea>
-                </div>
-            </div>
+      <!-- Hashing Section -->
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Hashing</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Data to Hash</label
+            >
+            <input
+              type="text"
+              id="hashData"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+            />
+          </div>
+          <div class="flex space-x-4">
+            <button
+              data-algorithm="sha256"
+              class="hash-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+            >
+              SHA256
+            </button>
+            <button
+              data-algorithm="sha512"
+              class="hash-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+            >
+              SHA512
+            </button>
+            <button
+              data-algorithm="double256"
+              class="hash-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+            >
+              Double SHA256
+            </button>
+            <button
+              data-algorithm="hash160"
+              class="hash-btn bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+            >
+              HASH160
+            </button>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Hash Result</label
+            >
+            <textarea
+              id="hashResult"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+              rows="2"
+              readonly
+            ></textarea>
+          </div>
         </div>
+      </div>
+
+      <!-- Encryption Section -->
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-semibold mb-4">Encryption</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Data to Encrypt</label
+            >
+            <input
+              type="text"
+              id="encryptData"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Password</label
+            >
+            <input
+              type="password"
+              id="encryptPassword"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+            />
+          </div>
+          <div class="flex space-x-4">
+            <button
+              id="encrypt"
+              class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+            >
+              Encrypt
+            </button>
+            <button
+              id="decrypt"
+              class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+            >
+              Decrypt
+            </button>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Result</label
+            >
+            <textarea
+              id="encryptResult"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+              rows="3"
+              readonly
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shamir's Secret Sharing Section -->
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-semibold mb-4">Shamir's Secret Sharing</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Secret</label
+            >
+            <input
+              type="text"
+              id="shamirSecret"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Shares</label
+            >
+            <input
+              type="number"
+              id="shamirShares"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Threshold</label
+            >
+            <input
+              type="number"
+              id="shamirThreshold"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"
+            />
+          </div>
+          <div class="flex space-x-4">
+            <button
+              id="shamirSplit"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Split
+            </button>
+            <button
+              id="shamirCombine"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Combine
+            </button>
+          </div>
+          <div id="shamirResult" class="mt-4"></div>
+        </div>
+      </div>
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3000';
-        
-        // Key Generation
-        document.getElementById('generateKeys').addEventListener('click', async () => {
-            try {
-                const response = await axios.post(`${API_URL}/keys/generate`);
-                const { mnemonic, keys } = response.data.data;
-                document.getElementById('mnemonic').value = mnemonic;
-                
-                const keyList = document.getElementById('keyList');
-                keyList.innerHTML = keys.map(key => `
+      const API_URL = "http://localhost:3000";
+
+      // Key Generation
+      document
+        .getElementById("generateKeys")
+        .addEventListener("click", async () => {
+          try {
+            const response = await axios.post(`${API_URL}/keys/generate`);
+            const { mnemonic, keys } = response.data.data;
+            document.getElementById("mnemonic").value = mnemonic;
+
+            const keyList = document.getElementById("keyList");
+            keyList.innerHTML = keys
+              .map(
+                (key) => `
                     <div class="border p-4 rounded">
                         <div class="font-semibold">${key.type}</div>
                         <div class="text-sm text-gray-600">Path: ${key.path}</div>
                         <div class="text-sm text-gray-600">WIF: ${key.wif}</div>
                         <div class="text-sm text-gray-600">Address: ${key.address}</div>
                     </div>
-                `).join('');
-            } catch (error) {
-                alert('Error generating keys: ' + error.message);
-            }
+                `
+              )
+              .join("");
+          } catch (error) {
+            alert("Error generating keys: " + error.message);
+          }
         });
 
-        // Signing
-        document.getElementById('signECDSA').addEventListener('click', async () => {
-            const data = document.getElementById('signMessage').value;
-            const wif = document.getElementById('signWIF').value;
-            try {
-                const response = await axios.post(`${API_URL}/sign/ecdsa`, { data, wif });
-                document.getElementById('signature').value = response.data.data.signature;
-            } catch (error) {
-                alert('Error signing with ECDSA: ' + error.message);
-            }
-        });
-
-        document.getElementById('signEdDSA').addEventListener('click', async () => {
-            const data = document.getElementById('signMessage').value;
-            const wif = document.getElementById('signWIF').value;
-            try {
-                const response = await axios.post(`${API_URL}/sign/eddsa`, { data, wif });
-                document.getElementById('signature').value = response.data.data.signature;
-            } catch (error) {
-                alert('Error signing with EdDSA: ' + error.message);
-            }
-        });
-
-        // Hashing
-        document.querySelectorAll('.hash-btn').forEach(button => {
-            button.addEventListener('click', async () => {
-                const data = document.getElementById('hashData').value;
-                const algorithm = button.dataset.algorithm;
-                try {
-                    const response = await axios.post(`${API_URL}/hash`, { data, algorithm });
-                    document.getElementById('hashResult').value = response.data.data.hash;
-                } catch (error) {
-                    alert('Error hashing data: ' + error.message);
-                }
+      // Signing
+      document
+        .getElementById("signECDSA")
+        .addEventListener("click", async () => {
+          const data = document.getElementById("signMessage").value;
+          const wif = document.getElementById("signWIF").value;
+          try {
+            const response = await axios.post(`${API_URL}/sign/ecdsa`, {
+              data,
+              wif,
             });
+            document.getElementById("signature").value =
+              response.data.data.signature;
+          } catch (error) {
+            alert("Error signing with ECDSA: " + error.message);
+          }
         });
 
-        // Encryption
-        document.getElementById('encrypt').addEventListener('click', async () => {
-            const data = document.getElementById('encryptData').value;
-            const key = document.getElementById('encryptPassword').value;
-            try {
-                const response = await axios.post(`${API_URL}/encrypt`, { data, key });
-                document.getElementById('encryptResult').value = response.data.data.encrypted;
-            } catch (error) {
-                alert('Error encrypting data: ' + error.message);
-            }
+      document
+        .getElementById("signEdDSA")
+        .addEventListener("click", async () => {
+          const data = document.getElementById("signMessage").value;
+          const wif = document.getElementById("signWIF").value;
+          try {
+            const response = await axios.post(`${API_URL}/sign/eddsa`, {
+              data,
+              wif,
+            });
+            document.getElementById("signature").value =
+              response.data.data.signature;
+          } catch (error) {
+            alert("Error signing with EdDSA: " + error.message);
+          }
         });
 
-        document.getElementById('decrypt').addEventListener('click', async () => {
-            const data = document.getElementById('encryptResult').value;
-            const key = document.getElementById('encryptPassword').value;
-            try {
-                const response = await axios.post(`${API_URL}/decrypt`, { data, key });
-                document.getElementById('encryptResult').value = response.data.data.decrypted;
-            } catch (error) {
-                alert('Error decrypting data: ' + error.message);
-            }
+      // Hashing
+      document.querySelectorAll(".hash-btn").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const data = document.getElementById("hashData").value;
+          const algorithm = button.dataset.algorithm;
+          try {
+            const response = await axios.post(`${API_URL}/hash`, {
+              data,
+              algorithm,
+            });
+            document.getElementById("hashResult").value =
+              response.data.data.hash;
+          } catch (error) {
+            alert("Error hashing data: " + error.message);
+          }
+        });
+      });
+
+      // Encryption
+      document.getElementById("encrypt").addEventListener("click", async () => {
+        const data = document.getElementById("encryptData").value;
+        const key = document.getElementById("encryptPassword").value;
+        try {
+          const response = await axios.post(`${API_URL}/encrypt`, {
+            data,
+            key,
+          });
+          document.getElementById("encryptResult").value =
+            response.data.data.encrypted;
+        } catch (error) {
+          alert("Error encrypting data: " + error.message);
+        }
+      });
+
+      document.getElementById("decrypt").addEventListener("click", async () => {
+        const data = document.getElementById("encryptResult").value;
+        const key = document.getElementById("encryptPassword").value;
+        try {
+          const response = await axios.post(`${API_URL}/decrypt`, {
+            data,
+            key,
+          });
+          document.getElementById("encryptResult").value =
+            response.data.data.decrypted;
+        } catch (error) {
+          alert("Error decrypting data: " + error.message);
+        }
+      });
+      // Shamir
+      document
+        .getElementById("shamirSplit")
+        .addEventListener("click", async () => {
+          const secret = document.getElementById("shamirSecret").value;
+          const shares = document.getElementById("shamirShares").value;
+          const threshold = document.getElementById("shamirThreshold").value;
+          try {
+            const response = await axios.post(`${API_URL}/shamir/split`, {
+              secret,
+              shares,
+              threshold,
+            });
+            document.getElementById("shamirResult").innerHTML =
+              response.data.data.shares;
+          } catch (error) {
+            alert("Error splitting secret: " + error.message);
+          }
+        });
+      document
+        .getElementById("shamirCombine")
+        .addEventListener("click", async () => {
+          const shares = document.getElementById("shamirShares").value;
+          try {
+            const response = await axios.post(`${API_URL}/shamir/combine`, {
+              shares,
+            });
+            document.getElementById("shamirResult").innerHTML =
+              response.data.data.secret;
+          } catch (error) {
+            alert("Error combining shares: " + error.message);
+          }
         });
     </script>
-</body>
+  </body>
 </html>
