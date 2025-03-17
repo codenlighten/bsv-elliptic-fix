@@ -31,6 +31,25 @@
           </div>
         </div>
       </div>
+      <!-- UUID512 -->
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h3 class="text-xl font-semibold mb-3">UUID512</h3>
+        <div class="space-y-4">
+          <button
+            id="generateUUID512"
+            class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          >
+            Generate UUID512
+          </button>
+          <div
+            id="uuid512Output"
+            class="mt-4 p-4 bg-gray-100 rounded-md hidden"
+          >
+            <h4 class="font-medium mb-2">Generated UUID512:</h4>
+            <p id="uuid512" class="break-all"></p>
+          </div>
+        </div>
+      </div>
       <!-- Key Generation Section -->
       <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
         <h2 class="text-2xl font-semibold mb-4">Key Generation</h2>
@@ -529,6 +548,18 @@
               document.getElementById("uuid").textContent = uuid;
               const uuidOutput = document.getElementById("uuidOutput");
               uuidOutput.classList.remove("hidden");
+            });
+          });
+
+        // UUID512
+        document
+          .getElementById("generateUUID512")
+          .addEventListener("click", () => {
+            axios.get("/api/uuid512").then((response) => {
+              const uuid512 = response.data.uuid;
+              document.getElementById("uuid512").textContent = uuid512;
+              const uuid512Output = document.getElementById("uuid512Output");
+              uuid512Output.classList.remove("hidden");
             });
           });
 
