@@ -15,6 +15,76 @@ app.use(express.json());
 app.use(express.static("public"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
+//mnemonic endpoint
+/**
+ * @swagger
+ * /api/mnemonic:
+ *   post:
+ *     summary: Generate a new 24-word mnemonic
+ *     description: Generates a new 24-word mnemonic phrase
+ *     tags: [Utility]
+ *     responses:
+ *       200:
+ *         description: Successfully generated mnemonic
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mnemonic:
+ *                   type: string
+ *                   description: 24-word mnemonic phrase
+ */
+app.post("/api/mnemonic", (req, res) => {
+  try {
+    const mnemonic = req.body.mnemonic || BSVKeys.generateMnemonic();
+    res.json({ success: true, data: { mnemonic: mnemonic.toString() } });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+//uuidv5 from hash512
+/**
+ * @swagger
+ * /api/uuid512:
+ *   post:
+ *     summary: Generate UUIDv5 from hash512
+ *     description: Generates a UUIDv5 from the hash512 of a mnemonic phrase
+ *     tags: [Utility]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [hash]
+ *             properties:
+ *               hash:
+ *                 type: string
+ *                 description: Hash value
+ *     responses:
+ *       200:
+ *         description: Successfully generated UUIDv5
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 uuid:
+ *                   type: string
+ *                   description: UUIDv5
+ */
+app.post("/api/uuid512", (req, res) => {
+  try {
+    const { hash } = req.body;
+    if (!hash) throw new Error("Hash is required");
+    const uuid = BSVKeys.fromHash512(hash);
+    res.json({ success: true, data: { uuid } });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
 /**
  * @swagger
  * components:

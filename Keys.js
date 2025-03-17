@@ -1,7 +1,7 @@
 import bsv from "bsv";
 import Mnemonic from "bsv/mnemonic/index.js";
-import { v4 as uuidv4 } from "uuid";
-import crypto from 'crypto';
+import { v4 as uuidv4, v5 as uuidv5 } from "uuid";
+import crypto from "crypto";
 
 export class BSVKeys {
   constructor() {
@@ -21,14 +21,18 @@ export class BSVKeys {
     try {
       // Generate 256 bits (32 bytes) of entropy for 24 words
       const entropy = crypto.randomBytes(32);
-      
+
       // Create mnemonic with 256 bits of entropy
       const mnemonic = new Mnemonic(entropy);
-      
+
       // Verify we have 24 words
       const words = mnemonic.toString().split(" ");
       if (words.length !== 24) {
-        console.error("Generated mnemonic has", words.length, "words instead of 24");
+        console.error(
+          "Generated mnemonic has",
+          words.length,
+          "words instead of 24"
+        );
         return BSVKeys.generateMnemonic();
       }
       return mnemonic;
@@ -82,7 +86,19 @@ export class BSVKeys {
       throw new Error("Invalid private key");
     }
   }
-
+  //uuidv5 from mnemonic hash512
+  static getUuid512(mnemonicString) {
+    const hash512 = crypto
+      .createHash("sha512")
+      .update(mnemonicString)
+      .digest("hex");
+    return uuidv5(hash512, uuidv5.DNS);
+  }
+  static fromHash512(hash512) {
+    //generate uuidv5 from hash512
+    const uuid = uuidv5(hash512, uuidv5.DNS);
+    return uuid;
+  }
   toWIF() {
     if (!this.privateKey) {
       throw new Error("Private key is required for WIF format");
@@ -133,10 +149,15 @@ export class BSVKeys {
     try {
       const mnemonic = this.generateMnemonic();
       const instance = new BSVKeys();
+      const hash512 = crypto
+        .createHash("sha512")
+        .update(mnemonic.toString())
+        .digest("hex");
+      const uuid512 = uuidv5(hash512, uuidv5.DNS);
       const keys = {
         mnemonic: mnemonic.toString(),
         keys: [],
-        uuid: instance.uuid,
+        uuid: uuid512,
       };
 
       for (const [type, path] of Object.entries(instance.paths)) {
